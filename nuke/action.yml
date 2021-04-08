@@ -1,0 +1,91 @@
+name: "nuke"
+description: "Builds and tests a .NET project"
+inputs:
+  # framework:
+  #   description: ".NET target framework"
+  #   required: true
+  #   default: net5.0
+  directory:
+    description: "Project directory"
+    required: true
+  Compile:
+    description: "Flag indicating if Compile task is to be run"
+    default: "false"
+    required: false
+  UnitTests:
+    description: "Flag indicating if UnitTests task is to be run"
+    default: "false"
+    required: false
+  IntegrationTests:
+    description: "Flag indicating if IntegrationTests task is to be run"
+    default: "false"
+    required: false
+outputs:
+  test-results:
+    description: Location of the test results file
+    value: ${{ steps.dotnet-test.outputs.test-results }}
+  test-results-title:
+    description: Title of the test results
+    value: ${{ steps.dotnet-test.outputs.test-results-title }}
+runs:
+  using: "composite"
+  steps:
+    - run: dotnet tool restore
+      name: dotnet tool restore
+      working-directory: ${{ inputs.directory }}
+      shell: bash
+    - name: dotnet nuke Compile
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: |
+        PREDICATE=${{ inputs.Compile }}
+        if [ $PREDICATE -eq 'true' ]
+        then
+          dotnet nuke Compile
+        else
+          echo "Compile skipped"
+        fi
+    - name: dotnet nuke UnitTests
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: |
+        PREDICATE=${{ inputs.UnitTests }}
+        if [ $PREDICATE -eq 'true' ]
+        then
+          dotnet nuke UnitTests
+        else
+          echo "UnitTests skipped"
+        fi
+    - name: dotnet nuke IntegrationTests
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: |
+        PREDICATE=${{ inputs.IntegrationTests }}
+        if [ $PREDICATE -eq 'true' ]
+        then
+          dotnet nuke IntegrationTests
+        else
+          echo "IntegrationTests skipped"
+        fi
+    - name: dotnet nuke ModuleTests
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: |
+        PREDICATE=${{ inputs.ModuleTests }}
+        if [ $PREDICATE -eq 'true' ]
+        then
+          dotnet nuke UnitTests
+        else
+          echo "ModuleTests skipped"
+        fi
+    - name: dotnet nuke SystemTests
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: |
+        PREDICATE=${{ inputs.SystemTests }}
+        if [ $PREDICATE -eq 'true' ]
+        then
+          dotnet nuke UniSystemTeststTests
+        else
+          echo "SystemTests skipped"
+        fi
