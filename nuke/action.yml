@@ -20,6 +20,18 @@ inputs:
     description: "Flag indicating if IntegrationTests task is to be run"
     default: "false"
     required: false
+  ModuleTests:
+    description: "Flag indicating if ModuleTests task is to be run"
+    default: "false"
+    required: false
+  SystemTests:
+    description: "Flag indicating if SystemTests task is to be run"
+    default: "false"
+    required: false
+  SmokeTests:
+    description: "Flag indicating if SmokeTests task is to be run"
+    default: "false"
+    required: false
 outputs:
   test-results:
     description: Location of the test results file
@@ -74,7 +86,7 @@ runs:
         PREDICATE=${{ inputs.ModuleTests }}
         if [ $PREDICATE == 'true' ]
         then
-          dotnet nuke UnitTests
+          dotnet nuke ModuleTests
         else
           echo "ModuleTests skipped"
         fi
@@ -85,7 +97,18 @@ runs:
         PREDICATE=${{ inputs.SystemTests }}
         if [ $PREDICATE == 'true' ]
         then
-          dotnet nuke UniSystemTeststTests
+          dotnet nuke SystemTests
         else
           echo "SystemTests skipped"
+        fi
+    - name: dotnet nuke SmokeTests
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: |
+        PREDICATE=${{ inputs.SmokeTests }}
+        if [ $PREDICATE == 'true' ]
+        then
+          dotnet nuke SmokeTests
+        else
+          echo "SmokeTests skipped"
         fi
