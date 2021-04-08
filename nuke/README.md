@@ -1,6 +1,9 @@
 # nuke
 
-The action assumes that nuke is a dotnet tool used in the repo that will be using the action in the workflow. During execution the action will execute `dotnet tool restore`
+The action assumes that:
+- the project in the repository uses the [cloud-tek/build-system](https://github.com/cloud-tek/build-system) to build the project modules & artifacts within
+- nuke is a dotnet tool used in the repo that will be using the action in the workflow. 
+During execution the action will execute `dotnet tool restore`
 and then it will execute any task flagged as `true`
 
 **Example usage**
