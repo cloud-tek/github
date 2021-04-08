@@ -1,4 +1,4 @@
-# nuke
+# build-system
 
 The action assumes that:
 - the project in the repository uses the [cloud-tek/build-system](https://github.com/cloud-tek/build-system) to build the project modules & artifacts within
@@ -9,7 +9,7 @@ and then it will execute any task flagged as `true`
 **Example usage**
 ```yaml
 - id: nuke
-  uses: cloud-tek/actions/nuke@v0.2
+  uses: cloud-tek/actions/build-system@v0.2
   name: nuke
   with:
     directory: ${{ github.workspace }}
