@@ -39,7 +39,7 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: |
         PREDICATE=${{ inputs.Compile }}
-        if [ $PREDICATE -eq 'true' ]
+        if [ $PREDICATE == 'true' ]
         then
           dotnet nuke Compile
         else
@@ -50,7 +50,7 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: |
         PREDICATE=${{ inputs.UnitTests }}
-        if [ $PREDICATE -eq 'true' ]
+        if [ $PREDICATE == 'true' ]
         then
           dotnet nuke UnitTests
         else
@@ -61,7 +61,7 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: |
         PREDICATE=${{ inputs.IntegrationTests }}
-        if [ $PREDICATE -eq 'true' ]
+        if [ $PREDICATE == 'true' ]
         then
           dotnet nuke IntegrationTests
         else
@@ -72,7 +72,7 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: |
         PREDICATE=${{ inputs.ModuleTests }}
-        if [ $PREDICATE -eq 'true' ]
+        if [ $PREDICATE == 'true' ]
         then
           dotnet nuke UnitTests
         else
@@ -83,7 +83,7 @@ runs:
       working-directory: ${{ inputs.directory }}
       run: |
         PREDICATE=${{ inputs.SystemTests }}
-        if [ $PREDICATE -eq 'true' ]
+        if [ $PREDICATE == 'true' ]
         then
           dotnet nuke UniSystemTeststTests
         else
