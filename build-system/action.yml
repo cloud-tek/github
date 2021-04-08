@@ -20,6 +20,10 @@ inputs:
     description: "Flag indicating if Pack task is to be run after the Unit&Integration tests"
     default: "false"
     required: false
+  Push:
+    description: "Flag indicating if Push task is to be run after the Pack task"
+    default: "false"
+    required: false
   UnitTests:
     description: "Flag indicating if UnitTests task is to be run"
     default: "false"
@@ -38,6 +42,14 @@ inputs:
     required: false
   SmokeTests:
     description: "Flag indicating if SmokeTests task is to be run"
+    default: "false"
+    required: false
+  NuGetApiUrl:
+    description: "NuGet Url"
+    default: "false"
+    required: false
+  NuGetApiKey:
+    description: "NuGet API Key"
     default: "false"
     required: false
 outputs:
@@ -108,6 +120,17 @@ runs:
           dotnet nuke Pack
         else
           echo "Pack skipped"
+        fi
+    - name: dotnet nuke Push
+      shell: bash
+      working-directory: ${{ inputs.directory }}
+      run: |
+        PREDICATE=${{ inputs.Push }}
+        if [ $PREDICATE == 'true' ]
+        then
+          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ inputs.NuGetApiKey }}
+        else
+          echo "Push skipped"
         fi
     - name: dotnet nuke ModuleTests
       shell: bash
