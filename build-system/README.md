@@ -14,6 +14,8 @@ and then it will execute any task flagged as `true`
   with:
     directory: ${{ github.workspace }}
     Compile:            'true | false'
+    Pack:               'true | false'
+    Publish:            'true | false'
     UnitTests:          'true | false'
     IntegrationTests:   'true | false'
     ModuleTests:        'true | false'
