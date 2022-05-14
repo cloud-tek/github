@@ -1,0 +1,28 @@
+name: "auto-tag"
+description: "Automatically tags"
+inputs:
+  branch:
+    description: "Branch to which merge must be made in order to tag"
+    required: true
+  
+# outputs:
+#   test-results:
+#     description: Location of the test results file
+#     value: ${{ steps.dotnet-test.outputs.test-results }}
+#   test-results-title:
+#     description: Title of the test results
+#     value: ${{ steps.dotnet-test.outputs.test-results-title }}
+runs:
+  using: "composite"
+  steps:
+  - shell: bash
+    name: git tag
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch }}
+    run: |
+      BRANCH="${{ github.event.pull_request.head.ref }}"
+      if [[ $BRANCH =~ (release|hotfix)(\/|-)([0-9]+\.[0-9]+) ]]
+      then
+        echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+        git tag "${BASH_REMATCH[3]}" --force
+        git push origin "${BASH_REMATCH[3]}" --force
+      fi
