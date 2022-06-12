@@ -31,7 +31,7 @@ runs:
     with:
       configuration: ${{ inputs.configuration }}
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
 
   - name: create release
     uses: actions/create-release@v3
@@ -41,4 +41,4 @@ runs:
       release_name: ${{ env.tag }}
       body: ${{ steps.github_release.outputs.changelog }}
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
