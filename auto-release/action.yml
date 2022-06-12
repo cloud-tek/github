@@ -22,7 +22,7 @@ runs:
         git tag "${BASH_REMATCH[3]}" --force
         git push origin "${BASH_REMATCH[3]}" --force
 
-        echo "::set-env name=tag::${BASH_REMATCH[3]}"
+        echo "tag=${BASH_REMATCH[3]}" >> $GITHUB_ENV
       fi
   - name: build changelog
     id: github_release
