@@ -4,14 +4,7 @@ inputs:
   branch:
     description: "Branch to which merge must be made in order to tag"
     required: true
-  
-# outputs:
-#   test-results:
-#     description: Location of the test results file
-#     value: ${{ steps.dotnet-test.outputs.test-results }}
-#   test-results-title:
-#     description: Title of the test results
-#     value: ${{ steps.dotnet-test.outputs.test-results-title }}
+
 runs:
   using: "composite"
   steps:
