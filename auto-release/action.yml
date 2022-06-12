@@ -1,0 +1,44 @@
+name: "auto-release"
+description: "Automatically tags & creates a release when PR is closed & merged"
+inputs:
+  branch:
+    description: "Branch to which merge must be made in order to tag"
+    required: true
+  configuration:
+    description: "Release configuration"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - shell: bash
+    name: git tag
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch }}
+    run: |
+      BRANCH="${{ github.event.pull_request.head.ref }}"
+      if [[ $BRANCH =~ (release|hotfix)(\/|-)([0-9]+\.[0-9]+) ]]
+      then
+        echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+        git tag "${BASH_REMATCH[3]}" --force
+        git push origin "${BASH_REMATCH[3]}" --force
+
+        echo "::set-env name=tag::${BASH_REMATCH[3]}"
+      fi
+  - name: build changelog
+    id: github_release
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch }}
+    uses: mikepenz/release-changelog-builder-action@v3
+    with:
+      configuration: ${{ inputs.configuration }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  - name: create release
+    uses: actions/create-release@v3
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch }}
+    with:
+      tag_name: ${{ env.tag }}
+      release_name: ${{ env.tag }}
+      body: ${{ steps.github_release.outputs.changelog }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
