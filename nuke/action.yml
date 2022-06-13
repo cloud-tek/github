@@ -73,7 +73,7 @@ jobs:
         with:
           fetch-depth: "0"
       - id: auto-release
-        uses: cloud-tek/actions/auto-release@0.12
+        uses: cloud-tek/actions/auto-release@0.15
         with:
           branch: main
       - name: setup gitversion

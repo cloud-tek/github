@@ -11,7 +11,7 @@ and then it will execute any task flagged as `true`
 ```yaml
 jobs:
   build:
-    uses: cloud-tek/nuke@tag
+    uses: cloud-tek/actions/nuke@tag
     name: nuke
     with:
       Directory: ${{ github.workspace }}
