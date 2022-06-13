@@ -1,6 +1,6 @@
 # nuke
 
-The action assumes that:
+The workflow assumes that:
 - the project in the repository uses the [cloud-tek/build](https://github.com/cloud-tek/build) to build the project modules & artifacts within
 - nuke is a dotnet tool used in the repo that will be using the action in the workflow. 
 
