@@ -46,7 +46,9 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: dotnet tool restore
+    - run: |
+        dotnet tool restore
+        dotnet nuget list source
       name: dotnet tool restore
       working-directory: ${{ inputs.directory }}
       shell: bash
