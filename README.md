@@ -38,4 +38,5 @@ jobs:
 
 - [auto-tag](./auto-tag/README.md)
 - [auto-release](./auto-release/README.md)
+- [nuke](./nuke/README.md)
 
