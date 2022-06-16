@@ -30,6 +30,7 @@ runs:
     uses: mikepenz/release-changelog-builder-action@v3
     with:
       configuration: ${{ inputs.configuration }}
+      commitMode: true
     env:
       GITHUB_TOKEN: ${{ github.token }}
 
