@@ -1,0 +1,27 @@
+
+name: install-crictl-ci
+
+# env:
+#   NETCORE_VERSION: 6.0.100
+#   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+#   DOTNET_ROLL_FORWARD: Major
+
+on:
+  push:
+    branches:
+    - main
+    - feature/*
+    - release/*
+    paths:
+      - "install-crictl/**"
+
+jobs:
+  install-crictl:
+    name: install-crictl
+    runs-on: ubuntu-latest
+    steps:
+    - uses: cloud-tek/actions/install-crictl@{{ github.ref }}
+      with:
+        version: v1.22.0
+        os: linux
+        architecture: amd64
