@@ -23,7 +23,7 @@ jobs:
     name: install-crictl
     runs-on: ubuntu-latest
     steps:
-    - uses: cloud-tek/actions/install-crictl@{{ github.ref }}
+    - uses: cloud-tek/actions/install-crictl@HEAD
       with:
         version: v1.22.0
         os: linux
