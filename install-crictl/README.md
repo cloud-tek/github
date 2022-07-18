@@ -9,4 +9,6 @@ This action will automatically install ContainerD `crictl`
   name: install-containerd
   with:
     version: v1.22.0
+    os: linux
+    architecture: amd64
 ```
