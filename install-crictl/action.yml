@@ -5,10 +5,10 @@ inputs:
     description: "crictl version to install"
     required: true
   os:
-    description: "crictl target OS (darwin | {{ inputs.os }} | windows)"
+    description: "crictl target OS (darwin | linux | windows)"
     required: true
   architecture:
-    description: "crictl architecture to install ({{ inputs.architecture }} | 386 | arm | arm64)"
+    description: "crictl architecture to install (amd64 | 386 | arm | arm64)"
     required: true
 
 runs:
@@ -17,6 +17,6 @@ runs:
   - shell: bash
     name: wget crictl
     run: |
-      wget https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ inputs.version }}/crictl-{{ inputs.version }}-{{ inputs.os }}-{{ inputs.architecture }}.tar.gz \
-        && tar zxvf crictl-{{ inputs.version }}-{{ inputs.os }}-{{ inputs.architecture }}.tar.gz -C /usr/local/bin \
-        && rm -f crictl-{{ inputs.version }}-{{ inputs.os }}-{{ inputs.architecture }}.tar.gz
+      wget https://github.com/kubernetes-sigs/cri-tools/releases/download/${{ inputs.version }}/crictl-${{ inputs.version }}-${{ inputs.os }}-${{ inputs.architecture }}.tar.gz \
+        && tar zxvf crictl-${{ inputs.version }}-${{ inputs.os }}-${{ inputs.architecture }}.tar.gz -C /usr/local/bin \
+        && rm -f crictl-${{ inputs.version }}-${{ inputs.os }}-${{ inputs.architecture }}.tar.gz
