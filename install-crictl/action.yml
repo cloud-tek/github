@@ -1,0 +1,22 @@
+name: "install-crictl"
+description: "installs containerd crictl"
+inputs:
+  version:
+    description: "crictl version to install"
+    required: true
+  os:
+    description: "crictl target OS (darwin | {{ inputs.os }} | windows)"
+    required: true
+  architecture:
+    description: "crictl architecture to install ({{ inputs.architecture }} | 386 | arm | arm64)"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - shell: bash
+    name: wget crictl
+    run: |
+      wget https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ inputs.version }}/crictl-{{ inputs.version }}-{{ inputs.os }}-{{ inputs.architecture }}.tar.gz \
+        && tar zxvf crictl-{{ inputs.version }}-{{ inputs.os }}-{{ inputs.architecture }}.tar.gz -C /usr/local/bin \
+        && rm -f crictl-{{ inputs.version }}-{{ inputs.os }}-{{ inputs.architecture }}.tar.gz

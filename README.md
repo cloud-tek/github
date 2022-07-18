@@ -38,5 +38,6 @@ jobs:
 
 - [auto-tag](./auto-tag/README.md)
 - [auto-release](./auto-release/README.md)
+- [install-crictl](./install-crictl/README.md)
 - [nuke](./nuke/README.md)
 
