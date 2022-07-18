@@ -7,12 +7,15 @@ name: install-crictl-ci
 #   DOTNET_ROLL_FORWARD: Major
 
 on:
+  workflow_dispatch:
+    inputs: {}
   push:
     branches:
     - main
     - feature/*
     - release/*
     paths:
+      - ".github/workflows/install-crictl-ci.yml"
       - "install-crictl/**"
 
 jobs:
