@@ -16,4 +16,4 @@ runs:
     name: wget buildkit
     run: |
       wget https://github.com/vmware-tanzu/buildkit-cli-for-kubectl/releases/download/v${{ inputs.version }}/kubectl-buildkit_${{ inputs.version }}_amd64.deb \
-        && apt install ./kubectl-buildkit_${{ inputs.version }}_amd64.deb
+        && sudo apt install ./kubectl-buildkit_${{ inputs.version }}_amd64.deb
