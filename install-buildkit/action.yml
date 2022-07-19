@@ -1,0 +1,19 @@
+name: "install-buildkit"
+description: "installs buildkit"
+inputs:
+  version:
+    description: "buildkit version to install"
+    default: "0.1.6"
+    required: false
+  architecture:
+    description: "buildkit architecture to install (amd64 | 386 | arm | arm64)"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - shell: bash
+    name: wget buildkit
+    run: |
+      wget https://github.com/vmware-tanzu/buildkit-cli-for-kubectl/releases/download/v${{ inputs.version }}/kubectl-buildkit_${{ inputs.version }}_amd64.deb \
+        && apt-install ./kubectl-buildkit_${{ inputs.version }}_amd64.deb
