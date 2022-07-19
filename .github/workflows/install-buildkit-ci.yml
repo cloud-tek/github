@@ -1,5 +1,5 @@
 
-name: install-crictl-ci
+name: install-buildkit-ci
 
 # env:
 #   NETCORE_VERSION: 6.0.100
@@ -15,12 +15,12 @@ on:
     - feature/*
     - release/*
     paths:
-      - ".github/workflows/install-crictl-ci.yml"
-      - "install-crictl/**"
+      - ".github/workflows/install-buildkit-ci.yml"
+      - "install-buildkit/**"
 
 jobs:
-  install-crictl:
-    name: install-crictl
+  install-buildkit:
+    name: install-buildkit
     runs-on: ubuntu-latest
     steps:
     - uses: cloud-tek/actions/install-buildkit@main
