@@ -4,6 +4,10 @@ inputs:
   branch:
     description: "Branch to which merge must be made in order to tag"
     required: true
+  push:
+    description: "Flag indicating whether the tags should be pushed to upstream. Defaults to true"
+    required: false
+    default: "true"
 
 runs:
   using: "composite"
@@ -17,5 +21,8 @@ runs:
       then
         echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
         git tag "${BASH_REMATCH[3]}" --force
-        git push origin "${BASH_REMATCH[3]}" --force
+        if [[ ${{ inputs.push }} == "true" ]]
+        then
+          git push origin "${BASH_REMATCH[3]}" --force
+        fi
       fi
