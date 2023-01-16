@@ -25,4 +25,6 @@ runs:
         then
           git push origin "${BASH_REMATCH[3]}" --force
         fi
+      else
+        echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
       fi
