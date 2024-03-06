@@ -1,10 +1,12 @@
 name: "nuke"
-
 on:
   workflow_call:
     secrets:
-      NuGetApiKey:
+      NUGET_API_KEY:
         description: "NuGet API Key"
+        required: false
+      GH_TOKEN:
+        description: "GitHub Token"
         required: false
     inputs:
       Directory:
@@ -14,18 +16,17 @@ on:
       NetCoreVersion:
         type: string
         required: true
+      GitVersion:
+        description: "Flag indicating whether gitversion is to be used"
+        type: boolean
+        required: true
       Compile:
         description: "Flag indicating if Compile task is to be run"
         type: boolean
-        default: false
+        default: true
         required: false
       Publish:
         description: "Flag indicating if Publish task is to be run after the Unit&Integration tests"
-        type: boolean
-        default: false
-        required: false
-      Pack:
-        description: "Flag indicating if Pack task is to be run after the Unit&Integration tests"
         type: boolean
         default: false
         required: false
@@ -44,20 +45,25 @@ on:
         type: boolean
         default: false
         required: false
-      ModuleTests:
-        description: "Flag indicating if ModuleTests task is to be run"
+      FormatCheck:
+        description: "Flag indicating if FormatCheck task is to be run"
         type: boolean
-        default: false
+        default: true
         required: false
-      SystemTests:
-        description: "Flag indicating if SystemTests task is to be run"
+      PackagesOutdatedCheck:
+        description: "Flag indicating if PackagesOutdatedCheck task is to be run"
         type: boolean
-        default: false
+        default: true
         required: false
-      SmokeTests:
-        description: "Flag indicating if SmokeTests task is to be run"
+      PackagesBetaCheck:
+        description: "Flag indicating if PackagesBetaCheck task is to be run"
         type: boolean
-        default: false
+        default: true
+        required: false
+      RunChecks:
+        description: "Flag indicating if RunChecks task is to be run"
+        type: boolean
+        default: true
         required: false
       NuGetApiUrl:
         description: "NuGet Url"
@@ -65,99 +71,108 @@ on:
         required: false
 
 jobs:
-  nuke:
-    name: nuke
+  build:
+    name: build
     runs-on: ubuntu-latest
+    env:
+      NUKE_SKIP_UNITTESTS: ${{ !inputs.UnitTests }}
+      NUKE_SKIP_INTEGRATIONTESTS: ${{ !inputs.IntegrationTests }}
+      NUKE_SKIP_FORMATCHECK: ${{ !inputs.FormatCheck }}
+      NUKE_SKIP_PACKAGESOUTDATEDCHECK: ${{ !inputs.PackagesOutdatedCheck }}
+      NUKE_SKIP_PACKAGESBETACHECK: ${{ !inputs.PackagesBetaCheck }}
+      NUKE_SKIP_RUNCHECKS: ${{ !inputs.RunChecks }}
+      NUKE_SKIP_PUSH: ${{ !inputs.Push }}
+      NUKE_SKIP_PUBLISH: ${{ !inputs.Publish }}
     steps:
-      - uses: actions/checkout@v2
+
+      - uses: actions/checkout@v3
         with:
           fetch-depth: "0"
-      - id: auto-release
-        uses: cloud-tek/actions/auto-release@0.19
+          token: ${{ secrets.GH_TOKEN }}
+      - shell: bash
+        name: git config
+        if: |
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+      - id: auto-tag
+        if: |
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+        uses: cloud-tek/actions/auto-tag@0.12
+        if: ${{ inputs.GitVersion }}
         with:
-          branch: main
-      - name: setup gitversion
-        uses: gittools/actions/gitversion/setup@v0.9.7
-        with:
-          versionSpec: '5.x'
-      - name: run giversion
-        uses: gittools/actions/gitversion/execute@v0.9.7
+          branch: refs/heads/main
       - uses: actions/setup-dotnet@v1
-        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         name: dotnet installer
         with:
           dotnet-version: ${{ inputs.NetCoreVersion }}
       - name: global.json
-        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         shell: bash
         run: |
-          echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > global.json
+          if [ -f "${{ github.workspace }}/global.json" ]; then
+            echo "global.json exists"
+          else
+            echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > ${{ github.workspace }}/global.json
+          fi
+      - name: setup gitversion
+        uses: gittools/actions/gitversion/setup@v0.12.1
+        with:
+          versionSpec: '5.x'
+      - name: run giversion
+        uses: gittools/actions/gitversion/execute@v0.12.1
       - run: |
           dotnet nuget list source
           dotnet tool restore
         name: dotnet tool restore
-        if: ${{ !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         shell: bash
-      - name: dotnet nuke Compile
-        if: ${{ inputs.Compile && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
+      - name: dotnet nuke --target All
         shell: bash
         working-directory: ${{ inputs.Directory }}
         run: |
-          dotnet nuke Compile
-      - name: dotnet nuke UnitTests
+          dotnet nuke --target All
+      - name: dotnet nuke --target Push
+        if: ${{ inputs.Push }}
         shell: bash
-        if: ${{ inputs.UnitTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
         working-directory: ${{ inputs.Directory }}
         run: |
-          dotnet nuke UnitTests
-      - name: dotnet nuke IntegrationTests
-        shell: bash
-        if: ${{ inputs.IntegrationTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
+          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NUGET_API_KEY }}
+      - name: tree results
         run: |
-          dotnet nuke IntegrationTests
-      - name: dotnet nuke Publish
-        shell: bash
-        if: ${{ inputs.Publish && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
+          tree ${{ github.workspace }}/results
+      - name: tree artifacts
         run: |
-          dotnet nuke Publish
-      - name: dotnet nuke Pack
-        shell: bash
-        if: ${{ inputs.Pack && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke Pack
-      - name: dotnet nuke Push
-        shell: bash
-        if: ${{ inputs.Push && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke --target Push --nuget-api-url ${{ inputs.NuGetApiUrl }} --nuget-api-key ${{ secrets.NuGetApiKey }}
-      - name: dotnet nuke ModuleTests
-        shell: bash
-        if: ${{ inputs.ModuleTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke ModuleTests
-      - name: dotnet nuke SystemTests
-        shell: bash
-        if: ${{ inputs.SystemTests && !(github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == inputs.branch) }}
-        working-directory: ${{ inputs.Directory }}
-        run: |
-          dotnet nuke SystemTests
-      # https://github.com/marketplace/actions/test-reporter
+          tree ${{ github.workspace }}/artifacts
       - name: Test Report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        if: ${{ inputs.UnitTests }} || ${{ inputs.IntegrationTests }} && (success() || failure())
         with:
-          name: XUnit Tests # Name of the check run which will be created
-          path: tests/results/*.trx
-          reporter: dotnet-trx # Format of test results
-    # https://github.com/marketplace/actions/cobertura-report
-    # - uses: 5monkeys/cobertura-action@master
-    #   with:
-    #     path: test/results/*.trx
-    #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-    #     minimum_coverage: 1
+          name: XUnit Tests
+          path: ${{ github.workspace }}/results/tests/*.trx
+          reporter: dotnet-trx
+      - name: gh release create
+        shell: bash
+        if: |
+          ${{ inputs.GitVersion }} == true &&
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
+          then
+            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+            gh release create ${BASH_REMATCH[3]} --title "Release ${BASH_REMATCH[3]}" --verify-tag
+          else
+            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+          fi
