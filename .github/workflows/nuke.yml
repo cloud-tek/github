@@ -101,12 +101,12 @@ jobs:
           git config --local user.name "GitHub Action"
       - id: auto-tag
         if: |
+          ${{ inputs.GitVersion }} == true &&
           github.ref == 'refs/heads/main' &&
           github.event_name == 'pull_request' &&
           github.event.action == 'closed' &&
           github.event.pull_request.merged == true
         uses: cloud-tek/actions/auto-tag@0.12
-        if: ${{ inputs.GitVersion }}
         with:
           branch: refs/heads/main
       - uses: actions/setup-dotnet@v1
