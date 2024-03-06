@@ -71,8 +71,8 @@ on:
         required: false
 
 jobs:
-  build:
-    name: build
+  nuke:
+    name: nuke
     runs-on: ubuntu-latest
     env:
       NUKE_SKIP_UNITTESTS: ${{ !inputs.UnitTests }}
