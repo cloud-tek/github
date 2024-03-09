@@ -89,6 +89,7 @@ jobs:
         with:
           fetch-depth: "0"
           token: ${{ secrets.GH_TOKEN }}
+
       - shell: bash
         name: git config
         if: |
@@ -99,16 +100,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-      - id: auto-tag
-        if: |
-          ${{ inputs.GitVersion }} == true &&
-          github.ref == 'refs/heads/main' &&
-          github.event_name == 'pull_request' &&
-          github.event.action == 'closed' &&
-          github.event.pull_request.merged == true
-        uses: cloud-tek/actions/auto-tag@0.12
-        with:
-          branch: refs/heads/main
+
       - uses: actions/setup-dotnet@v1
         name: dotnet installer
         with:
@@ -126,6 +118,7 @@ jobs:
         with:
           versionSpec: '5.x'
       - name: run giversion
+        id: gitversion
         uses: gittools/actions/gitversion/execute@v0.12.1
       - run: |
           dotnet nuget list source
@@ -133,6 +126,36 @@ jobs:
         name: dotnet tool restore
         working-directory: ${{ inputs.Directory }}
         shell: bash
+
+      - shell: bash
+        name: git tag
+        if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
+          then
+            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+            git tag "${BASH_REMATCH[3]}" --force
+            if [[ ${{ inputs.push }} == "true" ]]
+            then
+              git push origin "${BASH_REMATCH[3]}" --force
+            fi
+          else
+            echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
+            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+          fi
+      # - id: auto-tag
+      #   if: |
+      #     ${{ inputs.GitVersion }} == true &&
+      #     github.ref == 'refs/heads/main' &&
+      #     github.event_name == 'pull_request' &&
+      #     github.event.action == 'closed' &&
+      #     github.event.pull_request.merged == true
+      #   uses: cloud-tek/actions/auto-tag@0.12
+      #   with:
+      #     branch: refs/heads/main
+
+
       - name: dotnet nuke --target All
         shell: bash
         working-directory: ${{ inputs.Directory }}
