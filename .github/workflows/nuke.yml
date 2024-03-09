@@ -178,24 +178,8 @@ jobs:
           else
             echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
             echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+          fi
 
-      # - shell: bash
-      #   name: git tag2
-      #   if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
-      #   run: |
-      #     BRANCH="${{ github.event.pull_request.head.ref }}"
-      #     if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
-      #     then
-      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
-      #       git tag "${BASH_REMATCH[3]}" --force
-      #       if [[ ${{ inputs.push }} == "true" ]]
-      #       then
-      #         git push origin "${BASH_REMATCH[3]}" --force
-      #       fi
-      #     else
-      #       echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
-      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
-      #     fi
       # - id: auto-tag
       #   if: |
       #     ${{ inputs.GitVersion }} == true &&
@@ -253,7 +237,8 @@ jobs:
 
       - shell: bash
         name: git tag2
-        if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' && github.ref == 'refs/heads/main' }}
+        if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' && startsWith(github.ref,'refs/pull') && endsWith(github.ref, 'merge') }}
         run: |
           git tag ${{ steps.gitversion.outputs.semVer }} --force
+          git push origin ${{ steps.gitversion.outputs.semVer }} --force
           echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${{ steps.gitversion.outputs.semVer }})"
