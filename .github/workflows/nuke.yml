@@ -112,6 +112,7 @@ jobs:
             echo "global.json exists"
           else
             echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > ${{ github.workspace }}/global.json
+          fi
 
       - shell: bash
         name: git tag
