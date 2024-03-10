@@ -118,19 +118,22 @@ jobs:
         name: git tag
         if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
         run: |
-          BRANCH="${{ github.event.pull_request.head.ref }}"
-          if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
-          then
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
-            git tag "${BASH_REMATCH[3]}" --force
-            if [[ ${{ inputs.push }} == "true" ]]
-            then
-              git push origin "${BASH_REMATCH[3]}" --force
-            fi
-          else
-            echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
-          fi
+          git describe --abbrev=0 --tags
+          echo ${{ steps.gitversion.outputs.semVer }}
+        # run: |
+        #   BRANCH="${{ github.event.pull_request.head.ref }}"
+        #   if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
+        #   then
+        #     echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+        #     git tag "${BASH_REMATCH[3]}" --force
+        #     if [[ ${{ inputs.push }} == "true" ]]
+        #     then
+        #       git push origin "${BASH_REMATCH[3]}" --force
+        #     fi
+        #   else
+        #     echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
+        #     echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+        #   fi
       - name: setup gitversion
         uses: gittools/actions/gitversion/setup@v0.12.1
         with:
