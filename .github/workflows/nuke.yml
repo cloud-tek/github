@@ -115,7 +115,7 @@ jobs:
           fi
 
       - shell: bash
-        name: git tag
+        name: git tag (on merge)
         if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
         run: |
           BRANCH="${{ github.event.pull_request.head.ref }}"
@@ -151,27 +151,27 @@ jobs:
           dotnet nuget list source
           dotnet tool restore
 
-      - shell: bash
-        name: git tag
-        if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
-        run: |
-          BRANCH="${{ github.event.pull_request.head.ref }}"
-          if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
-          then
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
-            git tag "${BASH_REMATCH[3]}" --force
-            if [[ ${{ inputs.push }} == "true" ]]
-            then
-              git push origin "${BASH_REMATCH[3]}" --force
-            fi
-          else
-            echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
-          fi
-          else
-            echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
-          fi
+      # - shell: bash
+      #   name: git tag
+      #   if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
+      #   run: |
+      #     BRANCH="${{ github.event.pull_request.head.ref }}"
+      #     if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
+      #     then
+      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+      #       git tag "${BASH_REMATCH[3]}" --force
+      #       if [[ ${{ inputs.push }} == "true" ]]
+      #       then
+      #         git push origin "${BASH_REMATCH[3]}" --force
+      #       fi
+      #     else
+      #       echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
+      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+      #     fi
+      #     else
+      #       echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
+      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
+      #     fi
 
       # - id: auto-tag
       #   if: |
@@ -229,7 +229,7 @@ jobs:
       #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
 
       - shell: bash
-        name: git tag2
+        name: git tag (on push)
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
         run: |
           git tag ${{ steps.gitversion.outputs.semVer }} --force
