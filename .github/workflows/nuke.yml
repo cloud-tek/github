@@ -237,8 +237,8 @@ jobs:
 
       - shell: bash
         name: git tag2
-        if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' && startsWith(github.ref,'refs/pull') && endsWith(github.ref, 'merge') }}
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
         run: |
           git tag ${{ steps.gitversion.outputs.semVer }} --force
           git push origin ${{ steps.gitversion.outputs.semVer }} --force
-          echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${{ steps.gitversion.outputs.semVer }})"
+          echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${{ steps.gitversion.outputs.majorMinorPatch }})"
