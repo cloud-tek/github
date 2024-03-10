@@ -129,7 +129,7 @@ jobs:
             fi
           else
             LATEST_TAG=$(git describe --tags --abbrev=0)
-            if [[ $LATEST_TAG =~ (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))? ]]
+            if [[ $LATEST_TAG =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))?$ ]]
             then
               TAG="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
               git tag $TAG --force
@@ -144,25 +144,25 @@ jobs:
       - name: run giversion
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.12.1
-      - run: |
+      - name: dotnet tool restore
+        shell: bash
+        working-directory: ${{ inputs.Directory }}
+        run: |
           dotnet nuget list source
           dotnet tool restore
-        name: dotnet tool restore
-        working-directory: ${{ inputs.Directory }}
-        shell: bash
 
-      - shell: bash
-        name: git tag
-        if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
-        run: |
-          BRANCH="${{ github.event.pull_request.head.ref }}"
-          if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
-          then
-            echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
-            git tag "${BASH_REMATCH[3]}" --force
-            if [[ ${{ inputs.push }} == "true" ]]
-            then
-              git push origin "${BASH_REMATCH[3]}" --force
+      # - shell: bash
+      #   name: git tag
+      #   if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
+      #   run: |
+      #     BRANCH="${{ github.event.pull_request.head.ref }}"
+      #     if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
+      #     then
+      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
+      #       git tag "${BASH_REMATCH[3]}" --force
+      #       if [[ ${{ inputs.push }} == "true" ]]
+      #       then
+      #         git push origin "${BASH_REMATCH[3]}" --force
 
       - shell: bash
         name: git tag
