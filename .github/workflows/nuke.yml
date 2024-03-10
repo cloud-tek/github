@@ -151,19 +151,6 @@ jobs:
           dotnet nuget list source
           dotnet tool restore
 
-      # - shell: bash
-      #   name: git tag
-      #   if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
-      #   run: |
-      #     BRANCH="${{ github.event.pull_request.head.ref }}"
-      #     if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
-      #     then
-      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
-      #       git tag "${BASH_REMATCH[3]}" --force
-      #       if [[ ${{ inputs.push }} == "true" ]]
-      #       then
-      #         git push origin "${BASH_REMATCH[3]}" --force
-
       - shell: bash
         name: git tag
         if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
