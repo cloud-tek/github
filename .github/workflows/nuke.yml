@@ -239,6 +239,6 @@ jobs:
         name: git tag2
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
         run: |
-          git tag ${{ steps.gitversion.outputs.semVer }} --force
-          git push origin ${{ steps.gitversion.outputs.semVer }} --force
+          git tag ${{ steps.gitversion.outputs.majorMinorPatch }} --force
+          git push origin ${{ steps.gitversion.outputs.majorMinorPatch }} --force
           echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${{ steps.gitversion.outputs.majorMinorPatch }})"
