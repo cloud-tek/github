@@ -210,7 +210,7 @@ jobs:
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
         run: |
           TAG=$(git describe --tags --abbrev=0)
-          if [[ $TAG =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))$ ]]
+          if [[ $TAG =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))$ ]]
           then
             git push --delete origin $TAG
             echo "$TAG is prelease. Deleted."
