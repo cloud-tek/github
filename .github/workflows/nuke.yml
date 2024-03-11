@@ -113,7 +113,6 @@ jobs:
           else
             echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > ${{ github.workspace }}/global.json
           fi
-
       - shell: bash
         name: git tag (on merge)
         if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
@@ -151,28 +150,6 @@ jobs:
           dotnet nuget list source
           dotnet tool restore
 
-      # - shell: bash
-      #   name: git tag
-      #   if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged && github.ref == 'refs/heads/main' }}
-      #   run: |
-      #     BRANCH="${{ github.event.pull_request.head.ref }}"
-      #     if [[ $BRANCH =~ (release)(\/|-)([0-9]+\.[0-9]+) ]]
-      #     then
-      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${BASH_REMATCH[3]})"
-      #       git tag "${BASH_REMATCH[3]}" --force
-      #       if [[ ${{ inputs.push }} == "true" ]]
-      #       then
-      #         git push origin "${BASH_REMATCH[3]}" --force
-      #       fi
-      #     else
-      #       echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
-      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
-      #     fi
-      #     else
-      #       echo "calculated gitversion : ${{ steps.gitversion.outputs.semVer }}"
-      #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
-      #     fi
-
       # - id: auto-tag
       #   if: |
       #     ${{ inputs.GitVersion }} == true &&
@@ -209,6 +186,7 @@ jobs:
           name: XUnit Tests
           path: ${{ github.workspace }}/results/tests/*.trx
           reporter: dotnet-trx
+
       # - name: gh release create
       #   shell: bash
       #   if: |
@@ -228,6 +206,15 @@ jobs:
       #     else
       #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
 
+      - shell: bash
+        name: git tag -d <pre-release tag>
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          if [[ $TAG =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))$ ]]
+          then
+            git push --delete origin $TAG
+          fi
       - shell: bash
         name: git tag (on push)
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
