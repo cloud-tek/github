@@ -205,12 +205,14 @@ jobs:
       #     else
       #       echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: none)"
 
+
+      #if [[ $TAG =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))$ ]]
       - shell: bash
         name: git tag -d <pre-release tag>
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
         run: |
           TAG=$(git describe --tags --abbrev=0)
-          if [[ $TAG =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))$ ]]
+          if [[ $TAG == *"-"* ]];
           then
             git push --delete origin $TAG
             echo "$TAG is prelease. Deleted."
