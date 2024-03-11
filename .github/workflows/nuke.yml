@@ -161,7 +161,6 @@ jobs:
       #   with:
       #     branch: refs/heads/main
 
-
       - name: dotnet nuke --target All
         shell: bash
         working-directory: ${{ inputs.Directory }}
@@ -214,6 +213,9 @@ jobs:
           if [[ $TAG =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(\+([0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*))$ ]]
           then
             git push --delete origin $TAG
+            echo "$TAG is prelease. Deleted."
+          else
+            echo "$TAG is not prelease. Skipped."
           fi
       - shell: bash
         name: git tag (on push)
