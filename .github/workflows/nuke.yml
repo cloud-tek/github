@@ -207,22 +207,23 @@ jobs:
 
 
       #if [[ $TAG =~ ^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-((0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))$ ]]
-      - shell: bash
-        name: git tag -d <pre-release tag>
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
-        run: |
-          TAG=$(git describe --tags --abbrev=0)
-          if [[ $TAG == *"-"* ]];
-          then
-            echo "$TAG is prelease. Deleting..."
-            git push --delete origin $TAG
-          else
-            echo "$TAG is not prelease. Skipped."
-          fi
-      - shell: bash
-        name: git tag (on push)
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
-        run: |
-          git tag ${{ steps.gitversion.outputs.semVer }} --force
-          git push origin ${{ steps.gitversion.outputs.semVer }} --force
-          echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${{ steps.gitversion.outputs.semVer }})"
+      # - shell: bash
+      #   name: git tag -d <pre-release tag>
+      #   if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
+      #   run: |
+      #     TAG=$(git describe --tags --abbrev=0)
+      #     if [[ $TAG == *"-"* ]];
+      #     then
+      #       echo "$TAG is prelease. Deleting..."
+      #       git push --delete origin $TAG
+      #     else
+      #       echo "$TAG is not prelease. Skipped."
+      #     fi
+
+      # - shell: bash
+      #   name: git tag (on push)
+      #   if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature') }}
+      #   run: |
+      #     git tag ${{ steps.gitversion.outputs.semVer }} --force
+      #     git push origin ${{ steps.gitversion.outputs.semVer }} --force
+      #     echo "${{ github.event.pull_request.head.ref }} --> ${{ github.ref }} (tag: ${{ steps.gitversion.outputs.semVer }})"
