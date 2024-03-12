@@ -214,8 +214,8 @@ jobs:
           TAG=$(git describe --tags --abbrev=0)
           if [[ $TAG == *"-"* ]];
           then
+            echo "$TAG is prelease. Deleting..."
             git push --delete origin $TAG
-            echo "$TAG is prelease. Deleted."
           else
             echo "$TAG is not prelease. Skipped."
           fi
