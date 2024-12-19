@@ -122,10 +122,12 @@ jobs:
             echo "{ \"tools\": { \"dotnet\": \"${{ inputs.NetCoreVersion }}\" } }" > ${{ github.workspace }}/global.json
           fi
       - name: setup gitversion
+        if: ${{ inputs.GitVersion }}
         uses: gittools/actions/gitversion/setup@v0.12.1
         with:
           versionSpec: '5.x'
       - name: run giversion
+        if: ${{ inputs.GitVersion }}
         uses: gittools/actions/gitversion/execute@v0.12.1
       - run: |
           dotnet nuget list source
