@@ -138,8 +138,12 @@ jobs:
       - name: dotnet nuke --target All
         shell: bash
         working-directory: ${{ inputs.Directory }}
-        run: |
+        run: >
           dotnet nuke --target All
+          --configuration Release
+          --collect-coverage true
+          --verbosity normal
+          --build-number ${{ github.run_number }}
       - name: tree artifacts
         run: |
           tree ${{ github.workspace }}/artifacts
