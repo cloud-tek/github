@@ -149,11 +149,11 @@ jobs:
         working-directory: ${{ inputs.Directory }}
         run: |
           if [ -d "artifacts/packages" ]; then
-            find artifacts/services -name "*.nupkg" -exec dotnet nuget push {} --source ${{ inputs.NuGetApiUrl }} --api-key ${{ secrets.NUGET_API_KEY }} \;
+            find ./artifacts/packages -name "*.nupkg" -exec dotnet nuget push {} --source ${{ inputs.NuGetApiUrl }} --api-key ${{ secrets.NUGET_API_KEY }} \;
           fi
 
           if [ -d "artifacts/tests" ]; then
-            find artifacts/tests -name "*.nupkg" -exec dotnet nuget push {} --source ${{ inputs.NuGetApiUrl }} --api-key ${{ secrets.NUGET_API_KEY }} \;
+            find ./artifacts/tests -name "*.nupkg" -exec dotnet nuget push {} --source ${{ inputs.NuGetApiUrl }} --api-key ${{ secrets.NUGET_API_KEY }} \;
           fi
       - name: tree results
         run: |
